@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0f3460">
+    <meta name="description" content="🔮 Oracle Yi Ching Interactif - Construction Progressive">
+    <title>🔮 Oracle Yi Ching Interactif</title>
+    
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23FFD700' width='192' height='192'/><text x='96' y='96' font-size='120' text-anchor='middle' dominant-baseline='central' fill='%23000'>🔮</text></svg>">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 50%, #1a1a2e 100%);
+            color: white;
+            padding: 20px;
+            padding-bottom: 40px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-top: 20px;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 8vw, 3rem);
+            color: #FFD700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            margin-bottom: 15px;
+        }
+
+        .subtitle {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.7);
+            line-height: 1.5;
+            margin-bottom: 10px;
+        }
+
+        .phase-counter {
+            font-size: 0.85rem;
+            color: #FFD700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        /* LAYOUT PRINCIPAL */
+        .main-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .construction-zone {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(108, 92, 231, 0.1));
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .construction-title {
+            font-size: 1.3rem;
+            color: #FFD700;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: bold;
+        }
+
+        /* AFFICHAGE TRAITS */
+        .traits-display {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            min-height: 140px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .trait-line {
+            font-size: 2.5rem;
+            margin: 8px 0;
+            font-weight: bold;
+            letter-spacing: 4px;
+            color: #FFD700;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+            font-family: monospace;
+        }
+
+        .trait-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin: 8px 0 0 0;
+        }
+
+        .trait-meaning {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        /* BOUTONS */
+        button {
+            padding: 15px 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #000;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px auto;
+            display: block;
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-family: Georgia, serif;
+            width: 90%;
+            max-width: 400px;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(255, 215, 0, 0.5);
+        }
+
+        button:disabled {
+            background: rgba(100, 100, 100, 0.5);
+            cursor: not-allowed;
+            color: rgba(255, 255, 255, 0.5);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .btn-option {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 165, 0, 0.2));
+            color: #FFD700;
+            border: 2px solid rgba(255, 215, 0, 0.5);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: bold;
+            font-family: Georgia, serif;
+        }
+
+        .btn-option:hover {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.6), rgba(255, 165, 0, 0.4));
+            border-color: #FFD700;
+            transform: scale(1.08);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-option.selected {
+            background: #FFD700;
+            color: #000;
+            border-color: #FFD700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.6);
+        }
+
+        /* TRIGRAMME DISPLAY */
+        .trigram-display {
+            background: linear-gradient(135deg, rgba(100, 200, 150, 0.2), rgba(100, 150, 200, 0.2));
+            border: 2px dashed rgba(255, 215, 0, 0.4);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .trigram-symbol {
+            font-size: 4rem;
+            margin: 15px 0;
+            color: #FFD700;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.4);
+        }
+
+        .trigram-name {
+            font-size: 1.2rem;
+            color: #FFD700;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .trigram-french {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* PHASE 2 INDICATOR */
+        .phase-separator {
+            text-align: center;
+            margin: 40px 0;
+            position: relative;
+        }
+
+        .phase-sep-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #FFD700, transparent);
+            margin: 15px 0;
+        }
+
+        .phase-sep-text {
+            display: inline-block;
+            background: #1a1a2e;
+            padding: 0 20px;
+            font-size: 1.2rem;
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        /* HEXAGRAMME FINAL */
+        .hexagram-final {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(200, 100, 0, 0.15));
+            border: 3px solid #FFD700;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .hexagram-symbol {
+            font-size: 5rem;
+            margin: 20px 0;
+            color: #FFD700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .hexagram-title {
+            font-size: 2rem;
+            color: #FFD700;
+            margin: 15px 0;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .hexagram-number {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 15px;
+        }
+
+        .hexagram-info {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .info-line {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.8);
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .info-label {
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        /* INITIAL STATE */
+        .initial-message {
+            background: rgba(255, 215, 0, 0.08);
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .initial-emoji {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .initial-title {
+            font-size: 1.8rem;
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+
+        .initial-text {
+            font-size: 0.95rem;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.7;
+            margin-bottom: 20px;
+        }
+
+        .instructions {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-align: left;
+        }
+
+        .step {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .step::before {
+            content: "→ ";
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .trait-line {
+                font-size: 2rem;
+            }
+
+            .trigram-symbol {
+                font-size: 3rem;
+            }
+
+            .hexagram-symbol {
+                font-size: 3.5rem;
+            }
+
+            .hexagram-title {
+                font-size: 1.5rem;
+            }
+
+            button {
+                padding: 12px 30px;
+                font-size: 0.9rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔮 Oracle Yi Ching Interactif 🔮</h1>
+            <p class="subtitle">Construction progressive d'un hexagramme trait par trait</p>
+            <p class="subtitle">Cliquez à chaque étape pour révéler votre destinée</p>
+            <div class="phase-counter" id="phaseCounter">PRÊT À COMMENCER</div>
+        </header>
+
+        <div id="content"></div>
+    </div>
+
+    <script>
+        // ========== DONNÉES TRIGRAMMES ==========
+        const TRIGRAMS = [
+            { index: 0, symbol: '☷', pinyin: 'Kūn', fr: 'Terre', desc: 'Réceptif, stable' },
+            { index: 1, symbol: '☶', pinyin: 'Gèn', fr: 'Montagne', desc: 'Immobilité, repos' },
+            { index: 2, symbol: '☵', pinyin: 'Kǎn', fr: 'Eau', desc: 'Profondeur, danger' },
+            { index: 3, symbol: '☴', pinyin: 'Xùn', fr: 'Vent', desc: 'Pénétration, douceur' },
+            { index: 4, symbol: '☳', pinyin: 'Zhèn', fr: 'Tonnerre', desc: 'Mouvement, choc' },
+            { index: 5, symbol: '☲', pinyin: 'Lí', fr: 'Feu', desc: 'Clarté, adhérence' },
+            { index: 6, symbol: '☱', pinyin: 'Duì', fr: 'Lac', desc: 'Joie, échange' },
+            { index: 7, symbol: '☰', pinyin: 'Qiàn', fr: 'Ciel', desc: 'Créatif, actif' }
+        ];
+
+        // ========== GRILLE PÉRIODIQUE 8×8 ==========
+        const GRID = [
+            [2,23,8,20,16,35,45,12],
+            [15,52,39,53,62,56,31,33],
+            [7,4,29,59,40,64,47,6],
+            [46,18,48,57,32,50,28,44],
+            [24,27,3,42,51,21,17,25],
+            [36,22,63,37,55,30,49,13],
+            [19,41,60,61,54,38,58,10],
+            [11,26,5,9,34,14,43,1]
+        ];
+
+        // ========== DONNÉES HEXAGRAMMES ==========
+        const H = {
+            1:{n:"Élan Créatif",s:"e",M:1,t:"I · Le Bateleur"},
+            2:{n:"Élan Réceptif",s:"d",M:1,t:"II · La Papesse"},
+            3:{n:"Difficultés initiales",s:"c",t:"8 de Coupes"},
+            4:{n:"Immaturité",s:"d",t:"4 de Deniers"},
+            5:{n:"Attendre",s:"c",t:"Reine de Coupes"},
+            6:{n:"Plaider sa cause",s:"e",t:"6 d'Épées"},
+            7:{n:"Armée",s:"d",t:"3 de Deniers"},
+            8:{n:"Alliance",s:"c",t:"As de Coupes"},
+            9:{n:"Petit Apprivoise",s:"e",t:"Roi d'Épées"},
+            10:{n:"Démarche",s:"e",t:"Reine d'Épées"},
+            11:{n:"Prospérité",s:"d",t:"Reine de Deniers"},
+            12:{n:"Adversité",s:"e",t:"2 d'Épées"},
+            13:{n:"S'entendre avec Tous",s:"e",t:"Valet d'Épées"},
+            14:{n:"Grand Réalise",s:"b",t:"Roi de Bâtons"},
+            15:{n:"Se Tenir",s:"d",t:"2 de Deniers"},
+            16:{n:"S'enthousiasmer",s:"b",t:"As de Bâtons"},
+            17:{n:"Suivre",s:"c",t:"9 de Coupes"},
+            18:{n:"Remédier au corrompu",s:"d",t:"6 de Deniers"},
+            19:{n:"Approcher",s:"d",t:"Valet de Deniers"},
+            20:{n:"Regarder",s:"e",t:"As d'Épées"},
+            21:{n:"Mordre et Unir",s:"b",t:"9 de Bâtons"},
+            22:{n:"Embellir",s:"d",t:"10 de Deniers"},
+            23:{n:"Usure",s:"d",t:"As de Deniers"},
+            24:{n:"Retour",s:"d",t:"7 de Deniers"},
+            25:{n:"Spontanément",s:"e",t:"9 d'Épées"},
+            26:{n:"Grand Apprivoise",s:"d",t:"Roi de Deniers"},
+            27:{n:"Nourrir",s:"d",t:"8 de Deniers"},
+            28:{n:"Grand Excès",s:"c",t:"7 de Coupes"},
+            29:{n:"Ravins",s:"c",M:1,t:"III · L'Impératrice"},
+            30:{n:"Lumière",s:"b",M:1,t:"IV · L'Empereur"},
+            31:{n:"Inciter",s:"c",t:"4 de Coupes"},
+            32:{n:"Endurer",s:"b",t:"7 de Bâtons"},
+            33:{n:"Faire Retraite",s:"e",t:"4 d'Épées"},
+            34:{n:"Grand Force",s:"b",t:"Reine de Bâtons"},
+            35:{n:"Avancer au Grand Jour",s:"b",t:"2 de Bâtons"},
+            36:{n:"Lumière Obscurcie",s:"d",t:"9 de Deniers"},
+            37:{n:"Gens du Clan",s:"e",t:"10 d'Épées"},
+            38:{n:"Divergence",s:"b",t:"Cavalier de Bâtons"},
+            39:{n:"Obstruction",s:"c",t:"3 de Coupes"},
+            40:{n:"Délivrance",s:"b",t:"5 de Bâtons"},
+            41:{n:"Diminuer",s:"d",t:"Cavalier de Deniers"},
+            42:{n:"Augmenter",s:"e",t:"8 d'Épées"},
+            43:{n:"Se montrer résolu",s:"c",t:"Roi de Coupes"},
+            44:{n:"Être Accueillant",s:"e",t:"7 d'Épées"},
+            45:{n:"Réunion",s:"c",t:"2 de Coupes"},
+            46:{n:"Croissance",s:"d",t:"5 de Deniers"},
+            47:{n:"Épuisement",s:"c",t:"5 de Coupes"},
+            48:{n:"Le Puits",s:"c",t:"6 de Coupes"},
+            49:{n:"Révolution",s:"c",t:"Valet de Coupes"},
+            50:{n:"Chaudron",s:"b",t:"8 de Bâtons"},
+            51:{n:"Ébranler",s:"b",M:1,t:"V · Le Pape"},
+            52:{n:"Stabiliser",s:"d",M:1,t:"VIII · La Justice"},
+            53:{n:"Progresser pas à pas",s:"e",t:"3 d'Épées"},
+            54:{n:"Mariage de la Cadette",s:"b",t:"Valet de Bâtons"},
+            55:{n:"Abondance",s:"b",t:"10 de Bâtons"},
+            56:{n:"Voyageur",s:"b",t:"4 de Bâtons"},
+            57:{n:"Se modeler",s:"e",M:1,t:"VII · Le Chariot"},
+            58:{n:"Échanger",s:"c",M:1,t:"VI · L'Amoureux"},
+            59:{n:"Dénouer",s:"e",t:"5 d'Épées"},
+            60:{n:"Mesure",s:"c",t:"Cavalier de Coupes"},
+            61:{n:"Juste Confiance",s:"e",t:"Cavalier d'Épées"},
+            62:{n:"Petit Excès",s:"b",t:"3 de Bâtons"},
+            63:{n:"Déjà traversé",s:"c",t:"10 de Coupes"},
+            64:{n:"Pas encore traversé",s:"b",t:"6 de Bâtons"}
+        };
+
+        // ========== SYMBOLES TRAITS ==========
+        const TRAITS = {
+            yang: { symbol: '━━━', name: 'Yang', meaning: 'Force, lumière, action' },
+            yin: { symbol: '━ ━', name: 'Yin', meaning: 'Réceptif, obscurité, repos' },
+            yChang: { symbol: '━━━⟳', name: 'Yang Changeant', meaning: 'Transformation active' },
+            yiChang: { symbol: '━ ━⟳', name: 'Yin Changeant', meaning: 'Transformation réceptive' }
+        };
+
+        // ========== STATE ==========
+        let state = {
+            phase: 'start', // start, tri1, tri2, final
+            tri1: null,
+            tri2: null,
+            hexNum: null,
+            hexData: null,
+            traits1: [],
+            traits2: []
+        };
+
+        // ========== RANDOM FUNCTIONS ==========
+        function drawTrait() {
+            const choice = Math.random();
+            if (choice < 0.25) return 'yang';      // ━━━
+            if (choice < 0.5) return 'yin';        // ━ ━
+            if (choice < 0.75) return 'yChang';    // ━━━⟳
+            return 'yiChang';                       // ━ ━⟳
+        }
+
+        function traitToIndex(trait) {
+            // yin = 0, yang = 1
+            return (trait === 'yang' || trait === 'yChang') ? 1 : 0;
+        }
+
+        function randomTrigram() {
+            return Math.floor(Math.random() * 8);
+        }
+
+        // ========== RENDER ==========
+        function render() {
+            const content = document.getElementById('content');
+            const counter = document.getElementById('phaseCounter');
+
+            if (state.phase === 'start') {
+                counter.textContent = 'PHASE 0 : PRÉPARATION';
+                content.innerHTML = `
+                    <div class="initial-message">
+                        <div class="initial-emoji">🔮</div>
+                        <h2 class="initial-title">Construction d'un Hexagramme Yi Ching</h2>
+                        <p class="initial-text">
+                            Vous allez construire progressivement un hexagramme en tirant des traits.
+                            Chaque clic révèle un trait (yin ou yang), puis ses variantes possibles,
+                            puis un trigramme. Vous répéterez cette opération deux fois pour obtenir
+                            un hexagramme complet.
+                        </p>
+                        <div class="instructions">
+                            <div class="step">Tirez 3 traits pour former le premier trigramme</div>
+                            <div class="step">Recommencez pour le second trigramme</div>
+                            <div class="step">L'hexagramme final apparaîtra à la croisée des deux trigrammes</div>
+                        </div>
+                    </div>
+                    <button onclick="startPhase1()" style="margin-top: 30px;">✦ Commencer le Tirage ✦</button>
+                `;
+            } else if (state.phase === 'tri1' || state.phase === 'tri2') {
+                const phaseNum = state.phase === 'tri1' ? 1 : 2;
+                const traits = state.phase === 'tri1' ? state.traits1 : state.traits2;
+                counter.textContent = `PHASE ${phaseNum} : CONSTRUCTION DU TRIGRAMME ${phaseNum}`;
+
+                let html = `
+                    <div class="main-grid">
+                        <div class="construction-zone">
+                            <div class="construction-title">Traits du Trigramme ${phaseNum}</div>
+                            <div class="traits-display">
+                `;
+
+                if (traits.length === 0) {
+                    html += `<p style="color: rgba(255,255,255,0.6);">En attente du premier trait...</p>
+                            </div>
+                            <button onclick="drawTraitStep()">🎲 Tirer le Trait ${traits.length + 1}</button>
+                    `;
+                } else if (traits.length < 3) {
+                    traits.forEach((t, idx) => {
+                        html += `<div class="trait-line">${TRAITS[t].symbol}</div>`;
+                    });
+                    html += `
+                            </div>
+                            <p style="color: rgba(255,255,255,0.6); margin-bottom: 15px;">${traits.length} trait(s) tiré(s)</p>
+                    `;
+
+                    if (traits.length < 3) {
+                        html += `<button onclick="drawTraitStep()">🎲 Tirer le Trait ${traits.length + 1}</button>`;
+                    }
+                } else {
+                    traits.forEach((t, idx) => {
+                        html += `<div class="trait-line">${TRAITS[t].symbol}</div>`;
+                    });
+                    html += `</div>`;
+                }
+
+                html += `</div></div>`;
+
+                // Afficher les options des traits
+                if (traits.length === 1) {
+                    html += `
+                        <div class="construction-zone">
+                            <div class="construction-title">Choisir le Type du Trait 1</div>
+                            <div class="trait-label">${TRAITS[traits[0]].meaning}</div>
+                            <div class="btn-options">
+                                <button class="btn-option" onclick="selectTraitVariant(0, 'yang')">━━━<br/>Yang</button>
+                                <button class="btn-option" onclick="selectTraitVariant(0, 'yin')">━ ━<br/>Yin</button>
+                                <button class="btn-option" onclick="selectTraitVariant(0, 'yChang')">━━━⟳<br/>Y.Chang</button>
+                                <button class="btn-option" onclick="selectTraitVariant(0, 'yiChang')">━ ━⟳<br/>Yi.Chang</button>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (traits.length >= 3) {
+                    const trigIdx = calculateTrigram(traits);
+                    const trig = TRIGRAMS[trigIdx];
+                    html += `
+                        <div class="trigram-display">
+                            <div style="font-size: 0.9rem; color: #FFD700; text-transform: uppercase; margin-bottom: 10px;">Trigramme ${phaseNum} Révélé</div>
+                            <div class="trigram-symbol">${trig.symbol}</div>
+                            <div class="trigram-name">${trig.pinyin} — ${trig.fr}</div>
+                            <div class="trigram-french">${trig.desc}</div>
+                        </div>
+                    `;
+
+                    if (phaseNum === 1) {
+                        html += `<button onclick="startPhase2()" style="margin-top: 20px;">✦ Construire le 2e Trigramme ✦</button>`;
+                    } else {
+                        html += `<button onclick="showFinalHexagram()" style="margin-top: 20px;">✦ Révéler l'Hexagramme Final ✦</button>`;
+                    }
+                }
+
+                content.innerHTML = html;
+            } else if (state.phase === 'final') {
+                counter.textContent = 'PHASE 3 : L\'HEXAGRAMME RÉVÉLÉ';
+                
+                const tri1Idx = calculateTrigram(state.traits1);
+                const tri2Idx = calculateTrigram(state.traits2);
+                const tri1 = TRIGRAMS[tri1Idx];
+                const tri2 = TRIGRAMS[tri2Idx];
+                
+                state.hexNum = GRID[tri1Idx][tri2Idx];
+                state.hexData = H[state.hexNum];
+
+                let html = `
+                    <div class="hexagram-final">
+                        <div style="font-size: 0.9rem; color: #FFD700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 20px;">L'HEXAGRAMME FINAL</div>
+                        <div class="hexagram-symbol">${sym(state.hexNum)}</div>
+                        <div class="hexagram-title">${state.hexData.n}</div>
+                        <div class="hexagram-number">Hexagramme n°${state.hexNum}</div>
+
+                        <div class="hexagram-info">
+                            <div class="info-line">
+                                <span class="info-label">Trigramme Inférieur :</span><br/>
+                                ${tri1.symbol} ${tri1.pinyin} — ${tri1.fr} (${tri1.desc})
+                            </div>
+                            <div class="info-line">
+                                <span class="info-label">Trigramme Supérieur :</span><br/>
+                                ${tri2.symbol} ${tri2.pinyin} — ${tri2.fr} (${tri2.desc})
+                            </div>
+                            <div class="info-line">
+                                <span class="info-label">Arcane Tarot :</span><br/>
+                                ${state.hexData.t}
+                            </div>
+                        </div>
+
+                        <button onclick="reset()" style="margin-top: 20px;">🔄 Tirer un Nouvel Hexagramme</button>
+                    </div>
+                `;
+
+                content.innerHTML = html;
+            }
+        }
+
+        function sym(n) {
+            return String.fromCodePoint(0x4DC0 + n - 1);
+        }
+
+        function calculateTrigram(traits) {
+            // traits = [trait1, trait2, trait3]
+            // De bas en haut : trait1 = ligne inférieure, trait3 = ligne supérieure
+            // Dans le Yi Ching : 0=yin, 1=yang
+            const line1 = traitToIndex(traits[0]);
+            const line2 = traitToIndex(traits[1]);
+            const line3 = traitToIndex(traits[2]);
+
+            // Construire le nombre binaire : line3 line2 line1 (de haut en bas)
+            return (line3 * 4) + (line2 * 2) + line1;
+        }
+
+        function drawTraitStep() {
+            const phase = state.phase === 'tri1' ? 'traits1' : 'traits2';
+            const trait = drawTrait();
+            state[phase].push(trait);
+            render();
+        }
+
+        function selectTraitVariant(idx, variant) {
+            const phase = state.phase === 'tri1' ? 'traits1' : 'traits2';
+            state[phase][idx] = variant;
+            render();
+        }
+
+        function startPhase1() {
+            state.phase = 'tri1';
+            state.traits1 = [];
+            render();
+        }
+
+        function startPhase2() {
+            state.phase = 'tri2';
+            state.traits2 = [];
+            render();
+        }
+
+        function showFinalHexagram() {
+            state.phase = 'final';
+            render();
+        }
+
+        function reset() {
+            state = {
+                phase: 'start',
+                tri1: null,
+                tri2: null,
+                hexNum: null,
+                hexData: null,
+                traits1: [],
+                traits2: []
+            };
+            render();
+        }
+
+        // Initial render
+        render();
+
+        // Service Worker
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js').catch(err => console.log('SW non disponible'));
+        }
+    </script>
+</body>
+</html>
